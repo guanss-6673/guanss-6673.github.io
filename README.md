@@ -1,11 +1,21 @@
-# guanss-6673.github.io
+# scheduling-demo-form (Web Service)
 
-This repository hosts the scheduling demo page for GitHub Pages.
+This repo supports Render Web Service deployment with form submission collection API.
 
-## Files
+## Local Run
 
-- `index.html`
-- `styles.css`
-- `app.js`
+```bash
+python3 CODE/run_scheduling_demo.py --host 0.0.0.0 --port 8000
+```
 
-Note: GitHub Pages is static hosting; server-side submission API is not included.
+## Render
+
+- Runtime: Python
+- Build Command: `echo "no build required"`
+- Start Command: `python3 CODE/run_scheduling_demo.py --host 0.0.0.0 --port $PORT`
+
+API:
+- `POST /api/submissions`
+
+Data path (in service container):
+- `CODE/submissions/`

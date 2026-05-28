@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>排产信息引导式采集 Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="mesh mesh-a"></div>
+    <div class="mesh mesh-b"></div>
+
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="kicker">Scheduling Wizard Demo</p>
+          <h1>制造业生产计划排程引导式采集</h1>
+          <p class="lead">固定场景为排产，目标默认所有订单按期交付；先采集通用建模输入，再补充特殊约束。</p>
+        </div>
+        <div class="pill-group">
+          <span class="pill">固定场景：生产排程</span>
+          <span class="pill">默认目标：所有订单按期交付</span>
+          <span class="pill">支持不同工厂输入差异</span>
+        </div>
+      </header>
+
+      <ol class="stepper" id="stepper">
+        <li data-step="1">1. 订单信息</li>
+        <li data-step="2">2. 工序信息</li>
+        <li data-step="3">3. 工作中心</li>
+        <li data-step="4">4. 员工信息</li>
+        <li data-step="5">5. 日历班次表</li>
+        <li data-step="6">6. 约束条件</li>
+        <li data-step="7">7. 任务情况与目标</li>
+        <li data-step="8">8. 输出</li>
+      </ol>
+
+      <section class="step" data-step="7">
+        <h2>任务情况说明 + 任务目标要求</h2>
+        <p class="hint">任务情况与目标均为固定项，默认可直接使用。</p>
+
+        <div class="form-block">
+          <label for="taskOverview">
+            任务情况说明
+            <span class="field-tip">（固定为排产任务，可直接使用。）</span>
+          </label>
+          <textarea id="taskOverview" rows="3" readonly>排产任务</textarea>
+        </div>
+
+        <div class="form-block">
+          <label for="taskGoal">
+            任务目标要求（固定）
+            <span class="field-tip">（固定目标，无需修改。）</span>
+          </label>
+          <textarea id="taskGoal" rows="4" readonly>目标为所有订单按期交付。</textarea>
+        </div>
+
+        <div class="guide-grid">
+          <article class="guide-card">
+            <h3>提示</h3>
+            <ul>
+              <li>本页为固定项，无需填写即可进入下一步。</li>
+              <li>若需补充个性化背景，请写在“约束条件与特殊约束补充”页。</li>
+            </ul>
+          </article>
+          <article class="guide-card">
+            <h3>示例</h3>
+            <p>例如：宝峰集团制造车间需完成一批订单的加工任务。从4月3日开始，共有5个订单。</p>
+            <p>例如：任务要求如下：按照订单交期倒排各工序完工时间，按照工序完工时间倒排原材料采购到达时间，在确保订单交期前提下优化设备与员工时间。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="step active" data-step="1">
+        <h2>订单信息</h2>
+        <p class="hint">先填总体概括，再上传一个或多个订单表。</p>
+
+        <div class="form-block">
+          <label for="orderSummary">
+            订单信息概括
+            <span class="field-tip">（请概述订单总量、交期分布与开工限制。）</span>
+          </label>
+          <textarea id="orderSummary" rows="4" placeholder="例如：10个订单，生产同类产品，不同交期；每个订单不早于2026.5.10开工。"></textarea>
+        </div>
+
+        <div class="guide-grid one-col">
+          <article class="guide-card">
+            <h3>提示</h3>
+            <ul>
+              <li>先在“订单信息概括”中写总订单数、交期分布和开工窗口。</li>
+              <li>订单表建议至少包含：订单号、生产代号、生产数量、交货期、下单时间、紧急程度。</li>
+              <li>订单号建议按下单日期顺序编号；紧急程度0为最低，数字越大越高。</li>
+            </ul>
+          </article>
+          <article class="guide-card">
+            <h3>示例（订单信息表）</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>订单号</th><th>生产代号</th><th>生产数量</th><th>交货期</th><th>下单时间</th><th>紧急程度</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>2604120-03A</td><td>8E3591D-B1</td><td>3221</td><td>4/10</td><td>3/9</td><td>0</td></tr>
+                  <tr><td>2604135-03</td><td>2R8790D</td><td>617</td><td>4/10</td><td>3/9</td><td>0</td></tr>
+                  <tr><td>2604159-03A</td><td>8E7753D-36</td><td>1510</td><td>4/20</td><td>3/10</td><td>0</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <div class="upload-panel">
+          <label class="upload-card"><span>上传订单信息表（可多选）</span><input id="orderFiles" type="file" multiple /></label>
+        </div>
+      </section>
+
+      <section class="step" data-step="2">
+        <h2>工序信息</h2>
+        <p class="hint">先填工序总体概括，再上传工序路线表或补充文件。</p>
+
+        <div class="form-block">
+          <label for="operationSummary">
+            工序信息概括
+            <span class="field-tip">（请概述工序总数、关键前后关系与工时口径。）</span>
+          </label>
+          <textarea id="operationSummary" rows="4" placeholder="例如：每个订单含8道工序，前置关系固定，工序按工作中心执行。"></textarea>
+        </div>
+
+        <div class="guide-grid one-col">
+          <article class="guide-card">
+            <h3>提示</h3>
+            <ul>
+              <li>工序表需能唯一表达“先后顺序 + 资源需求 + 工时”。</li>
+              <li>建议至少填写：工作中心、工序号、工序名称、工种、工时、前置工序。</li>
+              <li>工时单位统一为小时；前置工序按工序号填写，便于自动识别顺序。</li>
+            </ul>
+          </article>
+          <article class="guide-card">
+            <h3>示例（工序信息表）</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>工作中心*</th><th>工序号</th><th>工序名称</th><th>所需材料</th><th>工种</th><th>生产数量</th><th>工时</th><th>前置工序</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>冲裁</td><td>001</td><td>冲带面</td><td>材料1</td><td>冲裁(底部13)</td><td>300</td><td>0.012</td><td>0</td></tr>
+                  <tr><td>冲裁</td><td>002</td><td>冲填腹</td><td>材料1</td><td>冲裁(底部13)</td><td>300</td><td>0.012</td><td>001</td></tr>
+                  <tr><td>磨平面</td><td>009</td><td>中底打粗</td><td>材料2</td><td>磨平面13</td><td>300</td><td>0.017</td><td>007</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <div class="upload-panel">
+          <label class="upload-card"><span>上传工序信息表（可多选）</span><input id="operationFiles" type="file" multiple /></label>
+        </div>
+      </section>
+
+      <section class="step" data-step="3">
+        <h2>工作中心信息</h2>
+        <p class="hint">先填工作中心总体概括，再上传多个工作中心相关文件。</p>
+
+        <div class="form-block">
+          <label for="centerSummary">
+            工作中心信息概括
+            <span class="field-tip">（请概述工作中心数量、分类与瓶颈中心。）</span>
+          </label>
+          <textarea id="centerSummary" rows="4" placeholder="例如：共12个工作中心，冲裁/磨平面/冷压为关键瓶颈中心。"></textarea>
+        </div>
+
+        <div class="guide-grid one-col">
+          <article class="guide-card">
+            <h3>提示</h3>
+            <ul>
+              <li>工作中心用于承载设备资源，每道工序必须能映射到对应中心。</li>
+              <li>建议填写完整的中心分类、名称、编号，避免同名中心冲突。</li>
+            </ul>
+          </article>
+          <article class="guide-card">
+            <h3>示例（工作中心表）</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>工作中心分类</th><th>工作中心名称</th><th>工作中心编号</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>备料</td><td>复合</td><td>H</td></tr>
+                  <tr><td>备料</td><td>冲裁</td><td>oC</td></tr>
+                  <tr><td>备料</td><td>磨平面</td><td>MPM</td></tr>
+                  <tr><td>备料</td><td>冷压</td><td>zC</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <div class="upload-panel">
+          <label class="upload-card"><span>上传工作中心信息表（可多选）</span><input id="centerFiles" type="file" multiple /></label>
+        </div>
+      </section>
+
+      <section class="step" data-step="4">
+        <h2>员工信息</h2>
+        <p class="hint">先填员工总体概括，再上传员工技能与排班相关文件。</p>
+
+        <div class="form-block">
+          <label for="staffSummary">
+            员工信息概括
+            <span class="field-tip">（请概述员工规模、技能分布与工时边界。）</span>
+          </label>
+          <textarea id="staffSummary" rows="4" placeholder="例如：共35名员工，按工作中心分组，关键工种可跨中心支援。"></textarea>
+        </div>
+
+        <div class="guide-grid one-col">
+          <article class="guide-card">
+            <h3>提示</h3>
+            <ul>
+              <li>员工信息需覆盖“人员-中心-技能”关系，确保每道工序可分配人员。</li>
+              <li>建议标明多技能员工，便于跨工序或跨中心调度。</li>
+              <li>员工标准工时为7.5小时/天，可加班，但建议注明加班上限。</li>
+            </ul>
+          </article>
+          <article class="guide-card">
+            <h3>示例（员工信息表）</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>员工名称</th><th>所属中心</th><th>员工技能</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>张三</td><td>冲裁</td><td>冲裁</td></tr>
+                  <tr><td>李四</td><td>冲裁</td><td>冲裁、磨平面</td></tr>
+                  <tr><td>王五</td><td>冲裁</td><td>磨平面</td></tr>
+                  <tr><td>赵六</td><td>鞋面</td><td>鞋面</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <div class="upload-panel">
+          <label class="upload-card"><span>上传员工信息表（可多选）</span><input id="staffFiles" type="file" multiple /></label>
+        </div>
+      </section>
+
+      <section class="step" data-step="5">
+        <h2>日历与班次例外</h2>
+        <p class="hint">本页仅收集可结构化的日历/班次变化，其他差异项统一放在第6页“特殊约束补充”。</p>
+
+        <div class="form-block">
+          <label for="standardShiftWindow">
+            标准班次时间
+            <span class="field-tip">（例如：08:00-17:30）</span>
+          </label>
+          <input id="standardShiftWindow" type="text" placeholder="请输入标准班次时间段" />
+        </div>
+
+        <div class="form-block">
+          <label for="dailyWorkingHours">
+            每日标准工时（小时）
+            <span class="field-tip">（例如：7.5）</span>
+          </label>
+          <input id="dailyWorkingHours" type="text" placeholder="请输入每日标准工时" />
+        </div>
+
+        <div class="form-block">
+          <label for="weeklyWorkPattern">
+            每周工作制度
+            <span class="field-tip">（例如：双休 / 单休 / 大小周）</span>
+          </label>
+          <input id="weeklyWorkPattern" type="text" placeholder="请输入每周工作制度" />
+        </div>
+
+        <div class="form-block">
+          <label for="fixedBreakWindow">
+            固定休息时段
+            <span class="field-tip">（例如：12:00-13:30）</span>
+          </label>
+          <input id="fixedBreakWindow" type="text" placeholder="请输入固定休息时段" />
+        </div>
+
+        <div class="form-block">
+          <label for="overtimePolicy">
+            加班策略与上限
+            <span class="field-tip">（例如：允许加班，最多16小时/天）</span>
+          </label>
+          <input id="overtimePolicy" type="text" placeholder="请输入加班策略与上限" />
+        </div>
+
+        <div class="form-block">
+          <label for="calendarShiftSummary">
+            日历班次概括
+            <span class="field-tip">（请概述节假日停工、临时停机、调班加班等例外安排。）</span>
+          </label>
+          <textarea id="calendarShiftSummary" rows="4" placeholder="例如：5月1日全厂停工；冲裁中心5月8日夜班停班；磨平面中心5月12日安排加班。"></textarea>
+        </div>
+
+        <div class="guide-grid one-col">
+          <article class="guide-card">
+            <h3>提示</h3>
+            <ul>
+              <li>建议按“日期-对象-类型-时间段-影响范围”结构记录。</li>
+              <li>类型可用：停工、停机、停班、调班、加班、限产。</li>
+              <li>其他差异项（换模、到料、设备偏好等）请写在第6页“特殊约束补充”。</li>
+            </ul>
+          </article>
+          <article class="guide-card">
+            <h3>示例（日历班次表）</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>日期</th><th>对象</th><th>类型</th><th>开始时间</th><th>结束时间</th><th>影响范围</th><th>备注</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>2026-05-01</td><td>全厂</td><td>停工</td><td>08:00</td><td>22:00</td><td>所有工序</td><td>劳动节</td></tr>
+                  <tr><td>2026-05-08</td><td>冲裁中心</td><td>停班</td><td>18:00</td><td>22:00</td><td>夜班</td><td>临时检修</td></tr>
+                  <tr><td>2026-05-12</td><td>磨平面中心</td><td>加班</td><td>22:00</td><td>24:00</td><td>指定工序</td><td>赶交期</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <div class="upload-panel">
+          <label class="upload-card"><span>上传日历班次表（可多选）</span><input id="calendarShiftFiles" type="file" multiple /></label>
+        </div>
+      </section>
+
+      <section class="step" data-step="6">
+        <h2>约束条件与特殊约束补充</h2>
+        <p class="hint">先写通用硬约束，再补充工厂个性化规则。</p>
+
+        <div class="form-block">
+          <label for="constraintsOverview">
+            约束条件说明
+            <span class="field-tip">（请填写必须满足的硬约束，并按编号分条。）</span>
+          </label>
+          <textarea id="constraintsOverview" rows="9" placeholder="请按“1. 2. 3.”逐条填写必须满足的硬约束。"></textarea>
+        </div>
+
+        <div class="guide-grid">
+          <article class="guide-card">
+            <h3>提示</h3>
+            <ul>
+              <li>本框建议优先填写必须满足的硬约束，确保排产结果可执行。</li>
+              <li>建议一条约束一行，使用“1. 2. 3.”编号，便于模型解析。</li>
+              <li>每条约束尽量写清楚对象、条件和限制动作。</li>
+              <li>涉及时间、产能、工时时，尽量补充单位和时间范围。</li>
+              <li>优化策略可写在“输出”页，个性化规则（换模、并行限制、优先级）写在右侧“特殊约束补充”。</li>
+            </ul>
+          </article>
+          <article class="guide-card">
+            <h3>示例（通用约束 + 特殊约束）</h3>
+            <p>通用约束示例：</p>
+            <ul>
+              <li>每个订单的工序必须按给定顺序执行，前一道工序完成后才能开始下一道。</li>
+              <li>同一设备同一时刻只能加工一个任务。</li>
+              <li>一旦开始加工，必须连续完成，不可中断。</li>
+            </ul>
+            <p>特殊约束示例：</p>
+            <ul>
+              <li>某些产品换模时间较长。</li>
+              <li>A工序和B工序不能并行。</li>
+              <li>某些订单优先级更高。</li>
+              <li>夜班不能安排某些工序。</li>
+              <li>某些物料周三以后才到。</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="form-block">
+          <label for="specialConstraints">
+            特殊约束补充（自由输入）
+            <span class="field-tip">（填写换模、并行限制、优先级、到料时间等个性化规则。）</span>
+          </label>
+          <textarea id="specialConstraints" rows="8" placeholder="请按条目输入你的特殊约束。"></textarea>
+        </div>
+
+        <div class="upload-panel">
+          <label class="upload-card"><span>上传约束补充文件（可多选）</span><input id="constraintFiles" type="file" multiple /></label>
+        </div>
+      </section>
+
+      <section class="step" data-step="8">
+        <h2>输出</h2>
+        <p class="hint">输出固定为排程表，直接生成结构化需求摘要即可。</p>
+
+        <div class="form-block">
+          <label for="expectedOutput">
+            输出要求说明
+            <span class="field-tip">（固定输出为排程表，可直接使用。）</span>
+          </label>
+          <textarea id="expectedOutput" rows="3" readonly>排程表</textarea>
+        </div>
+
+        <div class="guide-grid">
+          <article class="guide-card">
+            <h3>提示</h3>
+            <ul>
+              <li>本页为固定输出项，无需填写即可生成结果。</li>
+              <li>若有额外输出偏好，可在“约束条件与特殊约束补充”页说明。</li>
+            </ul>
+          </article>
+          <article class="guide-card">
+            <h3>示例</h3>
+            <ul>
+              <li>生产计划表示例字段：生产计划单号、对应订单号、批次号、生产数量、计划开工时间、计划完成时间、交期。</li>
+              <li>工序明细表示例字段：工序单号、对应生产单号、工序名称、工作中心、分配员工、开工时间、完成时间、总用时。</li>
+              <li>产线负荷表示例字段：工作中心、工序、开始时间、结束时间、设备负荷率。</li>
+              <li>人员排班表示例字段：工作中心、人员编号、人员姓名、工序、开始时间、结束时间。</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="action-row">
+          <button id="generateBtn" class="btn primary">生成需求摘要</button>
+          <button id="submitBtn" class="btn primary">提交到服务器</button>
+          <button id="exportBtn" class="btn ghost">导出 JSON</button>
+        </div>
+
+        <div id="resultPanel" class="result hidden">
+          <h3>结构化需求摘要</h3>
+          <pre id="jsonPreview" class="json"></pre>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p id="message" class="message"></p>
+        <div class="nav">
+          <button id="prevBtn" class="btn ghost">上一步</button>
+          <button id="nextBtn" class="btn primary">下一步</button>
+        </div>
+      </footer>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
